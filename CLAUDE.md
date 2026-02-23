@@ -80,6 +80,7 @@ Supported: `telegram`, `discord`, `slack`, `desktop`, `none`
 | `/cortex:briefing` | Daily summary |
 | `/cortex:create-skill` | Create a new skill |
 | `/cortex:learn` | Scan all Claude Code transcripts for cross-project patterns |
+| `/cortex:connect-telegram` | Connect Telegram — chat with your agent from your phone |
 
 ## Rules
 

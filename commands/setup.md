@@ -63,7 +63,14 @@ Tell the user which env vars to set:
 | slack | `CORTEX_SLACK_WEBHOOK` |
 | desktop | _none_ (uses native notifications) |
 
-### 8. Confirm
+### 8. Offer Telegram Connection
+Ask: **"Do you want to chat with your agent from Telegram?"**
+
+If yes → run `/cortex:connect-telegram` (this installs NitroAgent as a background daemon that bridges Telegram to Claude Code).
+
+If no → skip, they can always run `/cortex:connect-telegram` later.
+
+### 9. Confirm
 ```
 Cortex initialized at ~/.claude/cortex/
 
@@ -80,5 +87,6 @@ Next steps:
   2. Edit ~/.claude/cortex/identity/USER.md to tell your assistant about you
   3. Fill in ~/.claude/cortex/memory/context.md with current priorities
   4. Run /cortex:learn to absorb insights from existing Claude Code projects
-  5. Run /cortex:status to verify everything works
+  5. Run /cortex:connect-telegram to chat from your phone
+  6. Run /cortex:status to verify everything works
 ```

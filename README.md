@@ -14,7 +14,8 @@ A self-building AI cortex for [Claude Code](https://claude.ai/claude-code). Pers
 | **Cross-Project Learning** | Scans all Claude Code transcripts and extracts patterns |
 | **Auto-Evolution** | Hooks that evaluate every session and persist knowledge |
 | **Identity System** | Customizable AI personality + user profile |
-| **6 Commands** | `/setup`, `/status`, `/evolve`, `/briefing`, `/create-skill`, `/learn` |
+| **Telegram Access** | Chat with your agent from your phone via NitroAgent |
+| **7 Commands** | `/setup`, `/status`, `/evolve`, `/briefing`, `/create-skill`, `/learn`, `/connect-telegram` |
 | **Notifications** | Telegram, Discord, Slack, or desktop |
 | **Cron Automation** | Scheduled briefings, awareness scans, summaries |
 | **Zero Project Pollution** | All data at `~/.claude/cortex/`, your repos stay clean |
@@ -89,6 +90,25 @@ Memory is injected at session start and evaluated at session end — automatical
 | `/cortex:briefing` | Daily summary |
 | `/cortex:create-skill` | Create a new skill |
 | `/cortex:learn` | Scan all project transcripts for patterns |
+| `/cortex:connect-telegram` | Chat with your agent from Telegram |
+
+## Telegram Access
+
+Talk to your Cortex agent from your phone. Powered by [NitroAgent](https://github.com/octaviusp/NitroAgent) — an open source Telegram-to-Claude Code bridge.
+
+```
+/cortex:connect-telegram
+```
+
+Or during `/cortex:setup`, answer "yes" when asked about Telegram.
+
+This installs NitroAgent as a background service on your Mac. Once running, you can:
+- Send text, voice, or photos from Telegram
+- Get streaming responses with live progress
+- Resume previous conversations
+- Switch between safe and full tool modes
+
+Requires: macOS, Rust toolchain, a Telegram bot token from [@BotFather](https://t.me/BotFather).
 
 ## Notifications
 
@@ -125,7 +145,8 @@ After setup, run `/cortex:setup` which offers to install cron jobs automatically
 │   ├── reports/            ← Generated reports
 │   └── exports/            ← Archived conversations
 ├── scripts/                ← Utility scripts (auto-created too)
-└── cron/                   ← Scheduled jobs (created by install_cron.sh)
+├── cron/                   ← Scheduled jobs (created by install_cron.sh)
+└── nitro-agent/            ← Telegram bridge (created by /cortex:connect-telegram)
 ```
 
 Your projects stay completely clean. No `memory/` directories. No `identity/` folders. No data files.

@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0] - 2026-02-23
+
+### Added
+- `/cortex:connect-telegram` command — chat with your agent from Telegram via NitroAgent
+- Setup wizard now offers Telegram connection as optional step
+- NitroAgent installed to `~/.claude/cortex/nitro-agent/` (zero project pollution)
+
 ## [2.0.0] - 2026-02-23
 
 ### Changed
