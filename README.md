@@ -164,10 +164,6 @@ The plugin provides the framework; your project stores the data.
 5. **Simplest approach that works** — No premature abstractions, no over-engineering
 6. **The user is in control** — Destructive actions always require confirmation. The AI has opinions but respects yours
 
-## Inspired By
-
-This plugin is a genericized version of [Senku](https://x.com/hugoguerrap), a personal AI assistant built on Claude Code that manages projects, monitors markets, sends notifications, and evolves itself — all from a single project directory.
-
 ## License
 
 MIT
