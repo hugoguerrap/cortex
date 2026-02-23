@@ -1,0 +1,39 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/session_start.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Evaluate if this conversation contains anything worth persisting to memory. Check for:\n1. New user preference or workflow pattern\n2. Technical decision or architectural choice\n3. New contact, opportunity, or strategic development\n4. Debugging insight or workaround learned\n5. Project status change or priority shift\n\nIf YES to any: respond with specific instructions on WHAT to update and in WHICH file:\n- memory/strategy.md → goals, opportunities, contacts\n- memory/lessons.md → technical insights, debugging patterns\n- memory/preferences.md → user behavior, communication style\n- memory/context.md → project status, active priorities\n- memory/conversations.md → session summary (only if significant)\n\nFormat: UPDATE <file>: <what to add/change>\n\nIf NOTHING worth persisting: respond with exactly: {\"decision\": \"skip\"}\n\nBe selective. Not every session needs memory updates. Only persist durable, reusable knowledge."
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/session_end.sh\"",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

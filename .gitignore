@@ -1,0 +1,5 @@
+data/logs/
+data/exports/
+data/reports/
+*.pid
+.DS_Store
