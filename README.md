@@ -2,7 +2,7 @@
 
 **Your AI that builds itself.**
 
-A Claude Code plugin that turns your assistant into a persistent, cross-project intelligence that learns your patterns, remembers everything, and grows its own tools — then lets you talk to it from Telegram while you're on the bus.
+A Claude Code plugin that turns your assistant into a persistent, cross-project intelligence that learns your patterns, grows its own tools, installs its own integrations, and lets you talk to it from Telegram while you're away from your desk.
 
 ```bash
 claude plugin install cortex
@@ -18,7 +18,7 @@ That's it. Two commands. You now have a personal AI with memory, identity, and s
 
 ## Why Cortex?
 
-Most memory plugins record what happened. Cortex learns **how you think**.
+Most memory plugins record what happened. Cortex learns **how you think** — and then acts on it.
 
 | | claude-mem | supermemory | Cortex |
 |---|---|---|---|
@@ -26,6 +26,7 @@ Most memory plugins record what happened. Cortex learns **how you think**.
 | Cross-project | No | User profile via cloud API | Scans ALL local transcripts, zero cloud |
 | Storage | SQLite + Chroma (embeddings) | Cloud API (supermemory.ai) | Plain markdown files you can read and edit |
 | Auto-evolution | No | No | Creates its own scripts, skills, and cron jobs |
+| Self-installing integrations | No | No | Searches, installs and configures MCP servers on demand |
 | Identity | No | No | Customizable personality + user profile |
 | Self-audit | No | No | `/evolve` — cleans stale data, consolidates, archives |
 | Telegram access | No | No | Chat from your phone via NitroAgent |
@@ -33,7 +34,48 @@ Most memory plugins record what happened. Cortex learns **how you think**.
 | Cloud dependency | No | Yes (supermemory.ai API) | No — 100% local |
 | Project pollution | Writes to project | Writes to project | **Zero** — all data at `~/.claude/cortex/` |
 
-**The fundamental difference:** other plugins add memory to Claude Code. Cortex adds **agency**. Your assistant doesn't just remember — it thinks about what to remember, builds tools when it spots patterns, and audits its own knowledge for staleness.
+**The fundamental difference:** other plugins add memory to Claude Code. Cortex adds **agency**. Your assistant doesn't just remember — it thinks about what to remember, builds tools when it spots patterns, installs new capabilities when you need them, and audits its own knowledge for staleness.
+
+---
+
+## What It Can Actually Do
+
+Cortex is not just memory. It's a foundation for a personal AI that grows with you.
+
+### Ask for any integration — it figures it out
+
+You say: *"I want to read my Google emails"*
+
+Your assistant:
+1. Searches for a Google Workspace MCP server
+2. Installs it with `claude mcp add`
+3. Walks you through OAuth setup step by step — which URL to visit, which buttons to click
+4. Tests the connection
+5. Remembers the integration is available for future sessions
+
+Same thing for Discord, Slack, GitHub, web browsing, crypto prices, calendar, drive — anything with an MCP server. **You don't need to know what MCP is.** You just ask for what you want and your assistant makes it happen.
+
+### Chat from your phone
+
+Powered by [NitroAgent](https://github.com/octaviusp/NitroAgent), you can message your agent from Telegram. You're on the bus with an idea? Send it. Your assistant executes it on your machine and streams back the result in real time — text, voice, photos.
+
+```
+/cortex:connect-telegram
+```
+
+The command guides you through everything: creating a bot, getting your ID, installing, testing. Zero prior knowledge needed.
+
+### Learn from your entire history
+
+```
+/cortex:learn
+```
+
+One command scans every Claude Code conversation you've ever had — across all projects — and builds a cognitive profile. Your coding style, recurring decisions, debugging patterns, technology preferences. Knowledge that was trapped in individual sessions becomes available everywhere.
+
+### Build its own tools
+
+When your assistant solves something that might come up again, it saves the script. When it detects a multi-step workflow, it creates a skill. When it finds a useful cron pattern, it schedules it. You don't configure this — it just happens.
 
 ---
 
@@ -45,22 +87,24 @@ You run `/cortex:setup`. It asks your name, what to call the assistant, and if y
 ### Week 1
 Every session, the Stop hook evaluates the conversation: "Did I learn something reusable?" Technical insights go to `lessons.md`. Your preferences go to `preferences.md`. Project context goes to `context.md`. You don't do anything — it happens automatically.
 
+You say "I want to check my calendar" — it finds a calendar MCP, installs it, walks you through auth. Next session, it's just there.
+
 ### Week 2
-You run `/cortex:learn`. It scans every Claude Code conversation you've ever had, across all projects. It builds a cognitive profile: your coding style, debugging patterns, technology preferences, recurring problems. Knowledge that was trapped in individual sessions is now available everywhere.
+You run `/cortex:learn`. It scans every Claude Code conversation you've ever had across all projects. It builds a cognitive profile. Knowledge that was locked in individual sessions is now available everywhere.
 
 ### Month 1
-Your assistant knows your stack, your patterns, your priorities. When you open a new project, it already understands how you work. When you hit a bug similar to one you solved 3 weeks ago, the lesson is right there in context. When you solve something novel, it saves the script for next time.
+Your assistant knows your stack, your patterns, your priorities, and has the integrations you actually use. When you open a new project, it already understands how you work. When you hit a familiar bug, the lesson is there. When you need a new capability, it installs it.
 
 ### From Telegram
-You're on the bus. You open Telegram, message your bot: "what's the status of the API migration?" Your assistant — running on your Mac at home — checks the codebase and streams back the answer in real time. You reply: "deploy it." It does.
+You're away from your desk with an idea. You message your bot: *"add rate limiting to the API."* Your assistant — running on your Mac — does it and streams back the result. You iterate from anywhere, anytime.
 
 ---
 
-## The Full Picture
+## Commands
 
 ```
 /cortex:setup              → Memory, identity, scripts — ready in 60 seconds
-/cortex:connect-telegram   → Guided setup: bot creation, install, running in 5 min
+/cortex:connect-telegram   → Guided Telegram setup — running in 5 min
 /cortex:learn              → Scan ALL Claude Code history → cognitive profile
 /cortex:evolve             → Self-audit: clean, consolidate, archive
 /cortex:status             → Health dashboard
@@ -68,13 +112,13 @@ You're on the bus. You open Telegram, message your bot: "what's the status of th
 /cortex:create-skill       → Create new capabilities on the fly
 ```
 
-### Memory System
+## Memory System
 
 6 persistent files at `~/.claude/cortex/memory/` — plain markdown, human-readable, git-friendly:
 
 | File | Purpose | Limit |
 |------|---------|-------|
-| `context.md` | Active projects, priorities | 200 lines |
+| `context.md` | Active projects, priorities, installed integrations | 200 lines |
 | `strategy.md` | Goals, opportunities, contacts | No limit |
 | `lessons.md` | Technical insights, debugging patterns | Categorized |
 | `preferences.md` | Learned work preferences | 100 lines |
@@ -83,7 +127,7 @@ You're on the bus. You open Telegram, message your bot: "what's the status of th
 
 Memory is **injected at session start** and **evaluated at session end** — automatically, via hooks.
 
-### Identity System
+## Identity System
 
 Two files that define who your assistant is:
 
@@ -92,28 +136,11 @@ Two files that define who your assistant is:
 
 These aren't decorative. They're injected into every session so Claude acts consistently across projects and time.
 
-### Auto-Evolution
-
-The system that makes Cortex different from a static config:
-
-1. **Stop hook** — After every session, Claude evaluates: "Should I update memory?" Not everything gets saved. Only durable, reusable knowledge.
-2. **Self-building** — When solving a problem: "Could this be needed again?" → saves the script. "Was this a multi-step workflow?" → creates a skill.
-3. **`/cortex:evolve`** — Manual deep audit. Cleans stale entries, consolidates duplicates, archives old conversations, proposes identity updates.
-
-### Cross-Project Learning
-
-`/cortex:learn` works in two phases:
-
-1. **Extraction** (zero LLM cost) — Python script scans `~/.claude/projects/` for conversation transcripts
-2. **Analysis** (uses Claude) — Patterns extracted and merged into memory: coding style, debugging approaches, technology preferences, recurring decisions
-
-This is how your assistant goes from "new to this project" to "knows how you think" in one command.
-
 ---
 
 ## Telegram: Your Agent in Your Pocket
 
-Powered by [NitroAgent](https://github.com/octaviusp/NitroAgent), an open source Telegram-to-Claude Code bridge built in Rust.
+Powered by [NitroAgent](https://github.com/octaviusp/NitroAgent) — an open source Telegram-to-Claude Code bridge built in Rust by [Octavio Pavon](https://github.com/octaviusp).
 
 ```
 /cortex:connect-telegram
@@ -128,13 +155,13 @@ The command guides you through **everything** — no prior knowledge needed:
 
 Once running:
 - **Text** → Claude Code executes it in your workspace
-- **Voice messages** → transcribed and executed (Moonshine STT)
+- **Voice messages** → transcribed and executed
 - **Photos** → Claude analyzes them
 - **Streaming** → real-time progress with animated UI
 - **Session memory** → resume conversations with `/resume`
 - **Starts on login, restarts on crash** — always available
 
-**Why this matters:** You can iterate on ideas from anywhere. Waiting in line? "Add rate limiting to the API." On the couch? "What broke in today's deploy?" At 2 AM with an idea? Message your bot and it's building it before you fall asleep.
+**Why this matters:** Your best ideas don't happen at your desk. With Telegram access you can iterate on anything, from anywhere, anytime. The feedback loop between "I have an idea" and "it's running" shrinks to seconds.
 
 ---
 
@@ -179,23 +206,40 @@ Optional scheduled jobs (installed during setup):
 
 ---
 
+## Where This Is Going
+
+Cortex today is a foundation. Here's where it can go — and where the community can take it:
+
+- **Proactive intelligence** — alerts about things that matter without you asking
+- **Shared skill library** — community-built skills anyone can install
+- **More chat platforms** — WhatsApp, Discord, Slack as first-class interfaces
+- **Smart MCP discovery** — automatic suggestions for integrations you might need
+- **Team memory** — shared knowledge across collaborators on the same project
+
+This is the base. PRs are welcome. Every developer who uses Claude Code daily has ideas about how their ideal assistant should work — let's build it together.
+
+---
+
 ## Philosophy
 
-1. **Self-building** — The AI creates its own tools as it works with you
-2. **Cross-project intelligence** — Learns from all your Claude Code projects, not just the current one
-3. **Zero pollution** — Your repos stay clean; all data at `~/.claude/cortex/`
-4. **Bash first, Claude second** — Scripts for mechanical tasks, Claude for thinking
-5. **Memory is selective** — Only durable, reusable knowledge gets persisted
-6. **Plain text over databases** — Markdown files you can read, edit, and version control
-7. **User is in control** — Destructive actions always require confirmation
+1. **Never say "I can't"** — If a capability is missing, search for it, install it, configure it
+2. **Self-building** — The AI creates its own tools as it works with you
+3. **Cross-project intelligence** — Learns from all your Claude Code projects, not just the current one
+4. **Zero pollution** — Your repos stay clean; all data at `~/.claude/cortex/`
+5. **Plain text over databases** — Markdown files you can read, edit, and version control
+6. **User is in control** — Destructive actions always require confirmation
 
 ---
 
 ## Credits
 
-- **[NitroAgent](https://github.com/octaviusp/NitroAgent)** by [Octavio Pavon](https://github.com/octaviusp) — The Rust-based Telegram-to-Claude Code bridge that powers `/cortex:connect-telegram`. Multi-agent support, streaming UI, voice transcription, session management. An incredible piece of engineering that makes remote access possible.
+- **[NitroAgent](https://github.com/octaviusp/NitroAgent)** by [Octavio Pavon](https://github.com/octaviusp) — The Rust-based Telegram-to-Claude Code bridge that powers `/cortex:connect-telegram`. Multi-agent support, streaming UI, voice transcription, session management. An incredible piece of open source engineering that makes remote access to Claude Code possible.
 
-- Built by [Hugo Guerra](https://github.com/hugoguerrap) — born from months of daily use building a personal AI assistant on Claude Code, then packaged so anyone can have the same experience.
+- Built by [Hugo Guerra](https://github.com/hugoguerrap) — born from months of daily use building a personal AI assistant on Claude Code, then packaged so anyone can have the same experience. Inspired by the vision of [OpenClaw](https://github.com/openclaw/openclaw) — but native to the Claude Code ecosystem.
+
+## Contributing
+
+PRs are welcome. If you use Claude Code daily and have ideas for how a personal AI assistant should work, this is the place to build it. Check the [issues](https://github.com/hugoguerrap/cortex/issues) or open one with your idea.
 
 ## License
 
