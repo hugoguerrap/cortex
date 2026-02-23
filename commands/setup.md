@@ -1,13 +1,13 @@
 ---
 name: setup
-description: Initialize personal-ai-os in the current project — creates memory, identity, and data directories with starter templates.
+description: Initialize Cortex in the current project — creates memory, identity, and data directories with starter templates.
 user-invocable: true
 ---
 
 # Setup
 
 ## When to Use
-- First time using personal-ai-os in a project
+- First time using Cortex in a project
 - To re-initialize missing directories (idempotent — won't overwrite existing files)
 
 ## Steps
@@ -22,7 +22,7 @@ bash "$CLAUDE_PROJECT_DIR/scripts/init_data_dirs.sh"
 For each template file in `templates/memory/`, copy it to `memory/` **only if it doesn't already exist**:
 
 ```bash
-PLUGIN_DIR="<path to personal-ai-os plugin>"
+PLUGIN_DIR="<path to cortex plugin>"
 for template in context.md strategy.md lessons.md preferences.md conversations.md watchlist.md; do
     if [ ! -f "memory/$template" ]; then
         cp "$PLUGIN_DIR/templates/memory/$template" "memory/$template"
@@ -55,9 +55,9 @@ Based on the chosen channel, tell the user which env vars to set:
 
 | Channel | Required Env Vars |
 |---------|------------------|
-| telegram | `PAIOS_TELEGRAM_TOKEN`, `PAIOS_TELEGRAM_CHAT_ID` |
-| discord | `PAIOS_DISCORD_WEBHOOK` |
-| slack | `PAIOS_SLACK_WEBHOOK` |
+| telegram | `CORTEX_TELEGRAM_TOKEN`, `CORTEX_TELEGRAM_CHAT_ID` |
+| discord | `CORTEX_DISCORD_WEBHOOK` |
+| slack | `CORTEX_SLACK_WEBHOOK` |
 | desktop | _none_ (uses native notifications) |
 
 ### 7. Create .gitignore entries
@@ -71,7 +71,7 @@ data/exports/
 ### 8. Confirm
 Print a summary:
 ```
-Personal AI OS initialized!
+Cortex initialized!
 
 Created:
   memory/        — 6 memory files (context, strategy, lessons, preferences, conversations, watchlist)
@@ -84,7 +84,8 @@ Next steps:
   1. Edit identity/SOUL.md to customize your assistant's personality
   2. Edit identity/USER.md to tell your assistant about yourself
   3. Fill in memory/context.md with your current priorities
-  4. Run /personal-ai-os:status to verify everything works
+  4. Run /cortex:learn to absorb insights from your existing Claude Code projects
+  5. Run /cortex:status to verify everything works
 
 Your AI assistant will learn and evolve from here.
 ```

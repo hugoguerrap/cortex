@@ -1,7 +1,7 @@
 {
-  "name": "personal-ai-os",
-  "version": "1.0.0",
-  "description": "Self-building personal AI OS — memory, auto-evolution, and automation that grows with you",
+  "name": "cortex",
+  "version": "1.1.0",
+  "description": "Self-building AI cortex for Claude Code — memory, cross-project learning, auto-evolution, and automation that grows with you",
   "author": "hugoguerrap",
-  "homepage": "https://github.com/hugoguerrap/personal-ai-os"
+  "homepage": "https://github.com/hugoguerrap/cortex"
 }

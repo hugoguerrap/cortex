@@ -1,8 +1,8 @@
 #!/bin/bash
-# install_cron.sh - Install cron jobs for personal-ai-os
+# install_cron.sh - Install cron jobs for Cortex
 # Usage: bash cron/install_cron.sh
 #
-# Preserves existing crontab. Replaces personal-ai-os entries on re-run.
+# Preserves existing crontab. Replaces Cortex entries on re-run.
 # Requires CLAUDE_PROJECT_DIR to be set.
 
 set -euo pipefail
@@ -56,7 +56,7 @@ CRONEOF
 fi
 
 CRON_ENTRIES="
-# === personal-ai-os START ===
+# === cortex START ===
 # Morning briefing (7:00 AM daily)
 0 7 * * * $PROJECT_DIR/cron/briefing.sh >> /dev/null 2>&1
 
@@ -65,15 +65,15 @@ CRON_ENTRIES="
 
 # Daily summary (10:00 PM daily)
 0 22 * * * $PROJECT_DIR/cron/summary.sh >> /dev/null 2>&1
-# === personal-ai-os END ===
+# === cortex END ===
 "
 
 # Remove old entries and add new ones
-EXISTING=$(crontab -l 2>/dev/null | sed '/=== personal-ai-os START ===/,/=== personal-ai-os END ===/d' || true)
+EXISTING=$(crontab -l 2>/dev/null | sed '/=== cortex START ===/,/=== cortex END ===/d' || true)
 
 echo "${EXISTING}${CRON_ENTRIES}" | crontab -
 
-echo "personal-ai-os cron jobs installed!"
+echo "Cortex cron jobs installed!"
 echo ""
 echo "Jobs:"
 echo "  0 7  * * *       Morning briefing"
@@ -81,4 +81,4 @@ echo "  */15 8-23 * * *  Awareness scan (no LLM cost)"
 echo "  0 22 * * *       Daily summary"
 echo ""
 echo "Verify: crontab -l"
-echo "Remove: crontab -l | sed '/personal-ai-os START/,/personal-ai-os END/d' | crontab -"
+echo "Remove: crontab -l | sed '/cortex START/,/cortex END/d' | crontab -"

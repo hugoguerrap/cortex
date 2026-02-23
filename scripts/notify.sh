@@ -1,20 +1,20 @@
 #!/bin/bash
 # notify.sh - Pluggable notification script
-# Reads PAIOS_NOTIFY_CHANNEL to determine delivery method.
+# Reads CORTEX_NOTIFY_CHANNEL to determine delivery method.
 #
 # Usage: notify.sh "message"
 #
 # Supported channels:
-#   telegram  - requires PAIOS_TELEGRAM_TOKEN + PAIOS_TELEGRAM_CHAT_ID
-#   discord   - requires PAIOS_DISCORD_WEBHOOK
-#   slack     - requires PAIOS_SLACK_WEBHOOK
+#   telegram  - requires CORTEX_TELEGRAM_TOKEN + CORTEX_TELEGRAM_CHAT_ID
+#   discord   - requires CORTEX_DISCORD_WEBHOOK
+#   slack     - requires CORTEX_SLACK_WEBHOOK
 #   desktop   - uses native OS notifications (no deps)
 #   none      - silent (default)
 
 set -euo pipefail
 
 MESSAGE="${1:?Error: message required as first argument}"
-CHANNEL="${PAIOS_NOTIFY_CHANNEL:-none}"
+CHANNEL="${CORTEX_NOTIFY_CHANNEL:-none}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -28,8 +28,8 @@ log() {
 
 # === TELEGRAM ===
 send_telegram() {
-    local token="${PAIOS_TELEGRAM_TOKEN:?Error: PAIOS_TELEGRAM_TOKEN not set}"
-    local chat_id="${PAIOS_TELEGRAM_CHAT_ID:?Error: PAIOS_TELEGRAM_CHAT_ID not set}"
+    local token="${CORTEX_TELEGRAM_TOKEN:?Error: CORTEX_TELEGRAM_TOKEN not set}"
+    local chat_id="${CORTEX_TELEGRAM_CHAT_ID:?Error: CORTEX_TELEGRAM_CHAT_ID not set}"
     local api_url="https://api.telegram.org/bot${token}"
 
     # Split long messages (Telegram limit: 4096 chars)
@@ -72,7 +72,7 @@ send_telegram() {
 
 # === DISCORD ===
 send_discord() {
-    local webhook="${PAIOS_DISCORD_WEBHOOK:?Error: PAIOS_DISCORD_WEBHOOK not set}"
+    local webhook="${CORTEX_DISCORD_WEBHOOK:?Error: CORTEX_DISCORD_WEBHOOK not set}"
 
     # Discord limit: 2000 chars
     if [ ${#MESSAGE} -le 2000 ]; then
@@ -96,7 +96,7 @@ send_discord() {
 
 # === SLACK ===
 send_slack() {
-    local webhook="${PAIOS_SLACK_WEBHOOK:?Error: PAIOS_SLACK_WEBHOOK not set}"
+    local webhook="${CORTEX_SLACK_WEBHOOK:?Error: CORTEX_SLACK_WEBHOOK not set}"
 
     curl -s -X POST "$webhook" \
         -H "Content-Type: application/json" \
@@ -107,9 +107,9 @@ send_slack() {
 # === DESKTOP ===
 send_desktop() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        osascript -e "display notification \"$MESSAGE\" with title \"Personal AI OS\""
+        osascript -e "display notification \"$MESSAGE\" with title \"Cortex\""
     elif command -v notify-send &>/dev/null; then
-        notify-send "Personal AI OS" "$MESSAGE"
+        notify-send "Cortex" "$MESSAGE"
     else
         echo "[NOTIFICATION] $MESSAGE"
     fi

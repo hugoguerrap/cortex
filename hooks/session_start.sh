@@ -14,7 +14,7 @@ CONTEXT=""
 
 # Check if setup has been run
 if [ ! -d "$PROJECT_DIR/memory" ] || [ ! -f "$PROJECT_DIR/memory/context.md" ]; then
-    CONTEXT="## First Time Setup\nRun \`/personal-ai-os:setup\` to initialize your personal AI OS."
+    CONTEXT="## First Time Setup\nRun \`/cortex:setup\` to initialize Cortex."
     if command -v jq &>/dev/null; then
         jq -n --arg ctx "$CONTEXT" '{
             "hookSpecificOutput": {

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0] - 2026-02-23
+
+### Added
+- `/cortex:learn` command — scans Claude Code transcripts from all projects, extracts patterns, builds cognitive profile
+- `scripts/extract_transcripts.py` — zero-LLM Python script for transcript extraction (supports --days, --project, --summary-only flags)
+
+### Changed
+- Renamed from `personal-ai-os` to `cortex`
+- All env vars renamed from `PAIOS_*` to `CORTEX_*`
+- All commands renamed from `/personal-ai-os:*` to `/cortex:*`
+- Updated plugin manifest, README, and all references
+
 ## [1.0.0] - 2026-02-23
 
 ### Added
