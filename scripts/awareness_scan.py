@@ -13,8 +13,8 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-PROJECT_DIR = Path(os.environ.get("CLAUDE_PROJECT_DIR", "."))
-DATA_DIR = PROJECT_DIR / "data"
+CORTEX_HOME = Path(os.environ.get("CORTEX_HOME", Path.home() / ".claude" / "cortex"))
+DATA_DIR = CORTEX_HOME / "data"
 LOG_DIR = DATA_DIR / "logs"
 SCAN_LOG = LOG_DIR / "awareness_scan.log"
 SCAN_STATE = DATA_DIR / "awareness_state.json"
@@ -25,7 +25,6 @@ def log(msg):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(SCAN_LOG, "a") as f:
         f.write(f"[{timestamp}] {msg}\n")
-    # Rotate if > 500 lines
     if SCAN_LOG.exists():
         lines = SCAN_LOG.read_text().splitlines()
         if len(lines) > 500:
@@ -34,7 +33,7 @@ def log(msg):
 
 def notify(message):
     """Send notification via notify.sh"""
-    notify_script = PROJECT_DIR / "scripts" / "notify.sh"
+    notify_script = CORTEX_HOME / "scripts" / "notify.sh"
     if notify_script.exists():
         try:
             subprocess.run(
@@ -45,7 +44,7 @@ def notify(message):
         except Exception as e:
             log(f"ERROR sending notification: {e}")
     else:
-        log("WARN: scripts/notify.sh not found")
+        log("WARN: scripts/notify.sh not found in CORTEX_HOME")
 
 
 def load_state():
@@ -87,7 +86,7 @@ def check_cron_health():
 def check_memory_freshness():
     """Check if memory files are getting stale"""
     stale = []
-    memory_dir = PROJECT_DIR / "memory"
+    memory_dir = CORTEX_HOME / "memory"
     if not memory_dir.exists():
         return stale
 
@@ -105,7 +104,7 @@ def check_memory_freshness():
 
 def check_strategy_followups():
     """Check strategy.md for unchecked followups"""
-    strategy = PROJECT_DIR / "memory" / "strategy.md"
+    strategy = CORTEX_HOME / "memory" / "strategy.md"
     if not strategy.exists():
         return []
     content = strategy.read_text()
@@ -119,7 +118,6 @@ def check_strategy_followups():
 def main():
     state = load_state()
 
-    # Rate limit: max 5 alerts per day
     today = datetime.now().strftime("%Y-%m-%d")
     if state.get("last_alert_date") != today:
         state["alert_count_today"] = 0
@@ -130,12 +128,10 @@ def main():
         save_state(state)
         return
 
-    # Run checks
     cron_failures = check_cron_health()
     stale_memory = check_memory_freshness()
     followups = check_strategy_followups()
 
-    # Build alert
     alerts = []
 
     if cron_failures:
@@ -144,7 +140,6 @@ def main():
     if stale_memory:
         alerts.append(f"Stale memory: {', '.join(stale_memory)}")
 
-    # Followups: only alert once per day
     if followups:
         last_followup_alert = state.get("last_followup_alert")
         if not last_followup_alert or (
@@ -156,7 +151,7 @@ def main():
             state["last_followup_alert"] = datetime.now().isoformat()
 
     if alerts:
-        message = "Awareness Scan\n\n" + "\n\n".join(alerts)
+        message = "Cortex Awareness Scan\n\n" + "\n\n".join(alerts)
         notify(message)
         state["alert_count_today"] = state.get("alert_count_today", 0) + 1
         state["last_alert"] = datetime.now().isoformat()

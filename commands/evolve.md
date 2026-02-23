@@ -11,36 +11,32 @@ user-invocable: true
 - After a series of productive sessions
 - When the assistant feels "out of sync" with current priorities
 
+## Data Location
+All memory files are at `~/.claude/cortex/memory/` (override with `CORTEX_HOME` env var).
+
 ## Process
 
 ### 1. Audit Memory Files
-Read and evaluate each memory file:
+Read and evaluate each file in `~/.claude/cortex/memory/`:
 
 | File | Check | Limit |
 |------|-------|-------|
-| `memory/context.md` | Are priorities current? Completed items still listed? | < 200 lines |
-| `memory/preferences.md` | Contradictions? Missing observed preferences? | < 100 lines |
-| `memory/watchlist.md` | Items user stopped caring about? | < 50 items |
-| `memory/lessons.md` | Duplicates? Items to consolidate? | Categorized |
-| `memory/conversations.md` | Entries older than 30 days? Archive to `data/exports/` | Last 30 days |
-| `memory/strategy.md` | Goals still active? Metrics up to date? | Current |
-
-For each file, check:
-- Last modified date
-- Line count vs limit
-- Stale or outdated entries
+| `context.md` | Are priorities current? Completed items still listed? | < 200 lines |
+| `preferences.md` | Contradictions? Missing observed preferences? | < 100 lines |
+| `watchlist.md` | Items user stopped caring about? | < 50 items |
+| `lessons.md` | Duplicates? Items to consolidate? | Categorized |
+| `conversations.md` | Entries older than 30 days? Archive to `data/exports/` | Last 30 days |
+| `strategy.md` | Goals still active? Metrics up to date? | Current |
 
 ### 2. Review Session Logs
-Read `data/logs/sessions.log`:
-- How often the user opens sessions
-- Average session duration
-- Usage patterns (time of day, frequency)
+Read `~/.claude/cortex/data/logs/sessions.log`:
+- Session frequency and duration
+- Usage patterns
 
 ### 3. Check Recent Work
-Look for recently modified files across the project:
-- Ad-hoc scripts that should be saved permanently to `scripts/`
-- Patterns that should become skills
-- Recurring solutions worth automating
+Look for recently modified files in `~/.claude/cortex/scripts/`:
+- Ad-hoc scripts that should be kept
+- Patterns worth automating
 
 ### 4. Present Evolution Report
 ```markdown
@@ -49,35 +45,20 @@ Look for recently modified files across the project:
 ### Memory Audit
 - context.md: [current/stale] — [proposed changes]
 - preferences.md: [current/stale] — [proposed changes]
-- watchlist.md: [current/stale] — [proposed changes]
-- lessons.md: [entries count] — [consolidation needed?]
-- conversations.md: [entries to archive]
-- strategy.md: [goals still active?]
+- (etc.)
 
 ### Proposed Updates
 1. [change] — [file]
-2. [change] — [file]
-
-### New Scripts/Skills Candidates
-- [description] — based on [pattern observed]
-
-### Identity Review
-- [any updates to SOUL.md or USER.md]
 
 ### Stale Items to Remove
 - [item] from [file]
 ```
 
 ### 5. Execute Changes (with approval)
-After the user approves:
-- Update memory files
-- Create new scripts with `chmod +x`
-- Create new skills if warranted
-- Archive old conversations to `data/exports/`
-- Log evolution to `memory/conversations.md`
+After user approves, update files in `~/.claude/cortex/memory/`.
 
 ### 6. Log Evolution
-Append to `memory/conversations.md`:
+Append to `~/.claude/cortex/memory/conversations.md`:
 ```
 ## YYYY-MM-DD - Self-Evolution
 - [summary of changes made]
@@ -86,5 +67,4 @@ Append to `memory/conversations.md`:
 ## Guidelines
 - Never delete information without user approval
 - Consolidate rather than remove
-- Keep the report concise — action over analysis
-- Suggest changes, don't assume (unless told "just do it")
+- Keep the report concise

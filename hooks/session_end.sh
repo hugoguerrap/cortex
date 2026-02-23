@@ -4,8 +4,8 @@
 
 set -uo pipefail
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
-LOG_DIR="$PROJECT_DIR/data/logs"
+CORTEX_HOME="${CORTEX_HOME:-$HOME/.claude/cortex}"
+LOG_DIR="$CORTEX_HOME/data/logs"
 LOG_FILE="$LOG_DIR/sessions.log"
 
 mkdir -p "$LOG_DIR"
@@ -18,7 +18,6 @@ REASON=$(echo "$INPUT" | jq -r '.reason // "unknown"' 2>/dev/null || echo "unkno
 # Calculate approximate duration from last SESSION_START
 LAST_START=$(grep "SESSION_START" "$LOG_FILE" 2>/dev/null | tail -1 | grep -o '^\[.*\]' | tr -d '[]')
 if [ -n "$LAST_START" ]; then
-    # Cross-platform date calculation
     if date -j &>/dev/null 2>&1; then
         START_EPOCH=$(date -j -f "%Y-%m-%d %H:%M:%S" "$LAST_START" "+%s" 2>/dev/null || echo "0")
     else

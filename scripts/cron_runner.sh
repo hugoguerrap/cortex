@@ -4,17 +4,17 @@
 #
 # Features:
 #   - PID lock to prevent concurrent runs
-#   - Logs output to data/logs/
+#   - Logs to ~/.claude/cortex/data/logs/
 #   - Sends error notification if task fails
 #   - Log rotation (> 7 days)
 
 set -uo pipefail
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:?Error: CLAUDE_PROJECT_DIR must be set}"
+CORTEX_HOME="${CORTEX_HOME:-$HOME/.claude/cortex}"
 TASK_NAME="${1:?Error: task_name required as first argument}"
 PROMPT="${2:?Error: prompt required as second argument}"
 
-LOG_DIR="$PROJECT_DIR/data/logs"
+LOG_DIR="$CORTEX_HOME/data/logs"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 LOG_FILE="$LOG_DIR/${TASK_NAME}_${TIMESTAMP}.log"
 PID_FILE="$LOG_DIR/${TASK_NAME}.pid"
@@ -37,8 +37,8 @@ trap 'rm -f "$PID_FILE"' EXIT
 
 echo "[$(date)] START: $TASK_NAME" >> "$LOG_FILE"
 
-# Invoke Claude Code
-cd "$PROJECT_DIR"
+# Invoke Claude Code (runs from home dir, plugin is loaded globally)
+cd "$HOME"
 
 claude --print \
     --model sonnet \
@@ -52,9 +52,9 @@ echo "[$(date)] END: $TASK_NAME (exit code: $EXIT_CODE)" >> "$LOG_FILE"
 
 # Notify on failure
 if [ $EXIT_CODE -ne 0 ]; then
-    if [ -f "$PROJECT_DIR/scripts/notify.sh" ]; then
-        "$PROJECT_DIR/scripts/notify.sh" \
-            "Cron error: $TASK_NAME failed (code $EXIT_CODE). Check logs." 2>/dev/null || true
+    NOTIFY_SCRIPT="$CORTEX_HOME/scripts/notify.sh"
+    if [ -f "$NOTIFY_SCRIPT" ]; then
+        "$NOTIFY_SCRIPT" "Cron error: $TASK_NAME failed (code $EXIT_CODE). Check logs." 2>/dev/null || true
     fi
 fi
 

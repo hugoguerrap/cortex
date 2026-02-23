@@ -15,7 +15,7 @@ Scans your Claude Code conversation history across ALL projects (`~/.claude/proj
 - **Communication style** — how you give instructions, level of detail you expect
 - **Technical stack** — frameworks, libraries, services you use across projects
 
-This builds a cognitive profile that makes the assistant smarter — not just within this project, but informed by everything you've ever worked on with Claude Code.
+This builds a cognitive profile stored in `~/.claude/cortex/memory/`.
 
 ## When to Use
 - After initial `/cortex:setup` to bootstrap knowledge from existing projects
@@ -28,85 +28,33 @@ This builds a cognitive profile that makes the assistant smarter — not just wi
 Run the extraction script (zero LLM cost, pure Python):
 
 ```bash
-python3 scripts/extract_transcripts.py --days 60 --max-files 80
+python3 ~/.claude/cortex/scripts/extract_transcripts.py --days 60 --max-files 80
 ```
-
-This outputs JSON with:
-- List of projects found
-- Sample user messages from each project
-- Tool usage statistics
-- Representative messages across all projects
 
 ### 2. Analyze Patterns
 With the extracted data, analyze for:
 
-**User Preferences:**
-- Language preference (English/Spanish/mixed?)
-- Instruction style (terse commands vs detailed specs?)
-- Reaction patterns (what triggers frustration vs satisfaction?)
-- Preferred output format (code-first? explanations? bullets?)
+**User Preferences:** Language preference, instruction style, reaction patterns, preferred output format.
 
-**Technical Profile:**
-- Most-used languages and frameworks
-- Common project types (web apps, CLI tools, automation, games?)
-- Debugging approach (logs? breakpoints? print statements?)
-- Architecture preferences (monolith? microservices? scripts?)
+**Technical Profile:** Most-used languages/frameworks, common project types, debugging approach, architecture preferences.
 
-**Working Patterns:**
-- Session frequency and duration
-- Time of day patterns
-- Project switching frequency
-- Ratio of new features vs bugfixes vs exploration
+**Working Patterns:** Session frequency/duration, time of day, project switching, feature vs bugfix ratio.
 
-**Recurring Themes:**
-- Problems that appear across multiple projects
-- Tools or techniques the user keeps reaching for
-- Knowledge gaps that cause repeated questions
+**Recurring Themes:** Cross-project problems, frequently-used tools, knowledge gaps.
 
 ### 3. Update Memory Files
-Based on the analysis, update the appropriate memory files:
+Based on analysis, update files in `~/.claude/cortex/memory/`:
 
-- **`memory/preferences.md`** — Coding style, communication style, tool preferences
-- **`memory/lessons.md`** — Cross-project technical insights
-- **`memory/context.md`** — Active projects discovered from transcripts
-- **`memory/strategy.md`** — Patterns that suggest goals or opportunities
+- `preferences.md` — Coding style, communication style, tool preferences
+- `lessons.md` — Cross-project technical insights
+- `context.md` — Active projects discovered from transcripts
+- `strategy.md` — Patterns suggesting goals or opportunities
 
 ### 4. Generate Learning Report
-Save a report to `data/reports/YYYY-MM-DD-learn.md`:
-
-```markdown
-# Cortex Learning Report — YYYY-MM-DD
-
-## Scan Summary
-- Projects scanned: N
-- Transcripts analyzed: N
-- Date range: [oldest] to [newest]
-
-## Cognitive Profile
-
-### Communication Style
-- [findings]
-
-### Technical Stack
-- [languages, frameworks, tools]
-
-### Working Patterns
-- [session patterns, project types]
-
-### Preferences Discovered
-- [new preferences extracted]
-
-### Cross-Project Insights
-- [patterns that apply everywhere]
-
-## Memory Updates Made
-- preferences.md: [what was added/updated]
-- lessons.md: [what was added]
-- context.md: [what was updated]
-```
+Save to `~/.claude/cortex/data/reports/YYYY-MM-DD-learn.md`.
 
 ### 5. Present Summary
-Show the user a concise summary of what was learned and what was updated. Ask if any corrections are needed.
+Show the user what was learned and updated. Ask for corrections.
 
 ## Options
 
@@ -117,8 +65,7 @@ Show the user a concise summary of what was learned and what was updated. Ask if
 | `--dry-run` | Analyze but don't update memory files |
 
 ## Guidelines
-- First run may take a moment — there could be hundreds of transcript files
-- The extraction script (Python) is free; only the Claude analysis costs tokens
-- Don't overwrite manually-written preferences — merge new findings
-- Flag uncertain findings with "?" and let the user confirm
-- Respect privacy: never include raw conversation content in reports, only patterns
+- The Python extractor is free; only Claude analysis costs tokens
+- Don't overwrite manually-written preferences — merge
+- Flag uncertain findings and let the user confirm
+- Never include raw conversation content in reports, only patterns

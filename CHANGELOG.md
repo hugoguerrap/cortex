@@ -1,27 +1,28 @@
 # Changelog
 
+## [2.0.0] - 2026-02-23
+
+### Changed
+- **Breaking**: All data now lives at `~/.claude/cortex/` instead of the user's project directory
+- Scripts, memory, identity, logs — everything moved to `CORTEX_HOME` (`~/.claude/cortex/`)
+- User projects are never modified by Cortex (zero pollution)
+- Hook scripts use `CORTEX_HOME` for data, `CLAUDE_PLUGIN_ROOT` for plugin code
+- Cron jobs write to `~/.claude/cortex/cron/` and `~/.claude/cortex/data/logs/`
+- Stop hook prompt uses absolute paths to `~/.claude/cortex/memory/`
+- SessionStart hook injects current project path for context awareness
+
 ## [1.1.0] - 2026-02-23
 
 ### Added
-- `/cortex:learn` command — scans Claude Code transcripts from all projects, extracts patterns, builds cognitive profile
-- `scripts/extract_transcripts.py` — zero-LLM Python script for transcript extraction (supports --days, --project, --summary-only flags)
+- `/cortex:learn` command — cross-project learning from Claude Code transcripts
+- `scripts/extract_transcripts.py` — zero-LLM transcript extractor
 
 ### Changed
 - Renamed from `personal-ai-os` to `cortex`
-- All env vars renamed from `PAIOS_*` to `CORTEX_*`
-- All commands renamed from `/personal-ai-os:*` to `/cortex:*`
-- Updated plugin manifest, README, and all references
+- All env vars: `PAIOS_*` → `CORTEX_*`
+- All commands: `/personal-ai-os:*` → `/cortex:*`
 
 ## [1.0.0] - 2026-02-23
 
 ### Added
-- Initial release
-- 5 commands: setup, status, evolve, briefing, create-skill
-- 3 hooks: SessionStart (context injection), Stop (memory evaluation), SessionEnd (session logging)
-- Memory system with 6 file types: context, strategy, lessons, preferences, conversations, watchlist
-- Identity templates: SOUL.md (assistant personality) + USER.md (user profile)
-- Pluggable notification script supporting Telegram, Discord, Slack, and desktop
-- Cron system with PID locking, log rotation, and failure alerts
-- Awareness scanner (zero LLM cost) for cron health, memory freshness, and followup tracking
-- Memory manager agent for consolidation and archival
-- Auto-evolution philosophy: the AI creates scripts, skills, and cron jobs as it works with you
+- Initial release with 5 commands, 3 hooks, memory system, notifications, cron

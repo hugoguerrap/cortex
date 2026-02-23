@@ -11,46 +11,46 @@ user-invocable: true
 - After setup to verify initialization
 - When something feels "off" and you want a quick diagnostic
 
+## Data Location
+All Cortex data is at `~/.claude/cortex/` (override with `CORTEX_HOME` env var).
+
 ## Steps
 
 ### 1. Check Directory Structure
-Verify these directories exist:
+Verify `~/.claude/cortex/` exists with:
 - `memory/` (6 files expected)
 - `identity/` (2 files expected)
 - `data/logs/`
-- `data/reports/`
+- `scripts/`
 
 Report any missing directories or files.
 
 ### 2. Memory Freshness
-For each memory file, check:
-- Last modified date (via `ls -la memory/`)
+For each memory file in `~/.claude/cortex/memory/`, check:
+- Last modified date
 - Line count
-- Flag files that haven't been updated in > 7 days as "stale"
+- Flag files not updated in > 7 days as "stale"
 
 ### 3. Session Stats
-Read `data/logs/sessions.log` if it exists:
+Read `~/.claude/cortex/data/logs/sessions.log` if it exists:
 - Total sessions logged
 - Last session date
-- Average session duration (from entries with duration)
+- Average session duration
 
 ### 4. Cron Health
-Check `data/logs/` for cron task logs:
-- Any files matching `*_*.log` pattern
+Check `~/.claude/cortex/data/logs/` for cron task logs:
+- Any `*_*.log` files
 - Check last entries for exit codes
-- Flag any failures in the last 24h
+- Flag failures in the last 24h
 
 ### 5. System Metrics
-Run `scripts/system_status.sh` if it exists:
-- Disk usage
-- Memory usage
-- Docker containers (if applicable)
+Run `~/.claude/cortex/scripts/system_status.sh` if it exists.
 
 ### 6. Present Dashboard
-Format as a clean dashboard:
-
 ```
-=== Personal AI OS Status ===
+=== Cortex Status ===
+
+Location: ~/.claude/cortex/
 
 Memory Files:
   context.md       ✓ 45 lines    (updated 2h ago)
@@ -72,7 +72,4 @@ Cron:
 
 System:
   Disk: 45% | Memory: 6.2/16 GB
-
-Scripts: 5 in scripts/
-Skills: 2 in .claude/skills/
 ```

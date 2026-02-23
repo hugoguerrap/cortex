@@ -1,14 +1,14 @@
 #!/bin/bash
-# init_data_dirs.sh - Create required data directories idempotently
-# Called by session_start.sh and /setup
+# init_data_dirs.sh - Create Cortex data directories idempotently
+# All data lives in ~/.claude/cortex/, not in the user's project
 
 set -euo pipefail
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+CORTEX_HOME="${CORTEX_HOME:-$HOME/.claude/cortex}"
 
-mkdir -p "$PROJECT_DIR/data/logs"
-mkdir -p "$PROJECT_DIR/data/reports"
-mkdir -p "$PROJECT_DIR/data/exports"
-mkdir -p "$PROJECT_DIR/memory"
-mkdir -p "$PROJECT_DIR/identity"
-mkdir -p "$PROJECT_DIR/scripts"
+mkdir -p "$CORTEX_HOME/data/logs"
+mkdir -p "$CORTEX_HOME/data/reports"
+mkdir -p "$CORTEX_HOME/data/exports"
+mkdir -p "$CORTEX_HOME/memory"
+mkdir -p "$CORTEX_HOME/identity"
+mkdir -p "$CORTEX_HOME/scripts"

@@ -1,6 +1,6 @@
 {
   "name": "cortex",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Self-building AI cortex for Claude Code — memory, cross-project learning, auto-evolution, and automation that grows with you",
   "author": "hugoguerrap",
   "homepage": "https://github.com/hugoguerrap/cortex"

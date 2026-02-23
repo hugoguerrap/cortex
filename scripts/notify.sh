@@ -16,9 +16,8 @@ set -euo pipefail
 MESSAGE="${1:?Error: message required as first argument}"
 CHANNEL="${CORTEX_NOTIFY_CHANNEL:-none}"
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-LOG_DIR="$PROJECT_DIR/data/logs"
+CORTEX_HOME="${CORTEX_HOME:-$HOME/.claude/cortex}"
+LOG_DIR="$CORTEX_HOME/data/logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/notify.log"
 
@@ -32,7 +31,6 @@ send_telegram() {
     local chat_id="${CORTEX_TELEGRAM_CHAT_ID:?Error: CORTEX_TELEGRAM_CHAT_ID not set}"
     local api_url="https://api.telegram.org/bot${token}"
 
-    # Split long messages (Telegram limit: 4096 chars)
     if [ ${#MESSAGE} -le 4096 ]; then
         local response
         response=$(curl -s -X POST "${api_url}/sendMessage" \
@@ -45,7 +43,6 @@ send_telegram() {
         if [ "$ok" = "true" ]; then
             log "OK: telegram (${#MESSAGE} chars)"
         else
-            # Retry without Markdown
             curl -s -X POST "${api_url}/sendMessage" \
                 -H "Content-Type: application/json" \
                 -d "$(jq -n --arg cid "$chat_id" --arg txt "$MESSAGE" \
@@ -74,7 +71,6 @@ send_telegram() {
 send_discord() {
     local webhook="${CORTEX_DISCORD_WEBHOOK:?Error: CORTEX_DISCORD_WEBHOOK not set}"
 
-    # Discord limit: 2000 chars
     if [ ${#MESSAGE} -le 2000 ]; then
         curl -s -X POST "$webhook" \
             -H "Content-Type: application/json" \
@@ -118,21 +114,11 @@ send_desktop() {
 
 # === DISPATCH ===
 case "$CHANNEL" in
-    telegram)
-        send_telegram
-        ;;
-    discord)
-        send_discord
-        ;;
-    slack)
-        send_slack
-        ;;
-    desktop)
-        send_desktop
-        ;;
-    none)
-        log "SKIP: channel=none"
-        ;;
+    telegram) send_telegram ;;
+    discord)  send_discord ;;
+    slack)    send_slack ;;
+    desktop)  send_desktop ;;
+    none)     log "SKIP: channel=none" ;;
     *)
         log "ERROR: Unknown channel '$CHANNEL'"
         echo "Error: Unknown notification channel '$CHANNEL'" >&2

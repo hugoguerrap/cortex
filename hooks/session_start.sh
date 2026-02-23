@@ -1,19 +1,18 @@
 #!/bin/bash
 # session_start.sh - Inject memory context + analysis into new sessions
-# Reads memory files, analyzes staleness/urgency, returns additionalContext
+# Reads memory files from CORTEX_HOME, returns additionalContext
 
 set -uo pipefail
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
-LOG_DIR="$PROJECT_DIR/data/logs"
+CORTEX_HOME="${CORTEX_HOME:-$HOME/.claude/cortex}"
+LOG_DIR="$CORTEX_HOME/data/logs"
 mkdir -p "$LOG_DIR"
 
 CONTEXT=""
 
-# === MEMORY FILES ===
+# === CHECK SETUP ===
 
-# Check if setup has been run
-if [ ! -d "$PROJECT_DIR/memory" ] || [ ! -f "$PROJECT_DIR/memory/context.md" ]; then
+if [ ! -d "$CORTEX_HOME/memory" ] || [ ! -f "$CORTEX_HOME/memory/context.md" ]; then
     CONTEXT="## First Time Setup\nRun \`/cortex:setup\` to initialize Cortex."
     if command -v jq &>/dev/null; then
         jq -n --arg ctx "$CONTEXT" '{
@@ -28,38 +27,37 @@ if [ ! -d "$PROJECT_DIR/memory" ] || [ ! -f "$PROJECT_DIR/memory/context.md" ]; 
     exit 0
 fi
 
-# Read identity files (live in user's project, created by /cortex:setup)
-if [ -f "$PROJECT_DIR/identity/SOUL.md" ]; then
-    SOUL=$(cat "$PROJECT_DIR/identity/SOUL.md" 2>/dev/null || true)
+# === IDENTITY ===
+
+if [ -f "$CORTEX_HOME/identity/SOUL.md" ]; then
+    SOUL=$(cat "$CORTEX_HOME/identity/SOUL.md" 2>/dev/null || true)
     CONTEXT="## Assistant Identity\n$SOUL"
 fi
 
-if [ -f "$PROJECT_DIR/identity/USER.md" ]; then
-    USER_PROFILE=$(cat "$PROJECT_DIR/identity/USER.md" 2>/dev/null || true)
+if [ -f "$CORTEX_HOME/identity/USER.md" ]; then
+    USER_PROFILE=$(cat "$CORTEX_HOME/identity/USER.md" 2>/dev/null || true)
     CONTEXT="$CONTEXT\n\n## User Profile\n$USER_PROFILE"
 fi
 
-# Read current priorities
-if [ -f "$PROJECT_DIR/memory/context.md" ]; then
-    CONTEXT_MD=$(cat "$PROJECT_DIR/memory/context.md" 2>/dev/null || true)
+# === MEMORY FILES ===
+
+if [ -f "$CORTEX_HOME/memory/context.md" ]; then
+    CONTEXT_MD=$(cat "$CORTEX_HOME/memory/context.md" 2>/dev/null || true)
     CONTEXT="$CONTEXT\n\n## Current Context\n$CONTEXT_MD"
 fi
 
-# Read strategy (goals, opportunities, contacts)
-if [ -f "$PROJECT_DIR/memory/strategy.md" ]; then
-    STRATEGY=$(cat "$PROJECT_DIR/memory/strategy.md" 2>/dev/null || true)
+if [ -f "$CORTEX_HOME/memory/strategy.md" ]; then
+    STRATEGY=$(cat "$CORTEX_HOME/memory/strategy.md" 2>/dev/null || true)
     CONTEXT="$CONTEXT\n\n## Strategy & Opportunities\n$STRATEGY"
 fi
 
-# Read lessons (last 30 lines)
-if [ -f "$PROJECT_DIR/memory/lessons.md" ]; then
-    LESSONS=$(tail -30 "$PROJECT_DIR/memory/lessons.md" 2>/dev/null || true)
+if [ -f "$CORTEX_HOME/memory/lessons.md" ]; then
+    LESSONS=$(tail -30 "$CORTEX_HOME/memory/lessons.md" 2>/dev/null || true)
     CONTEXT="$CONTEXT\n\n## Recent Lessons\n$LESSONS"
 fi
 
-# Read recent conversations (last 20 lines)
-if [ -f "$PROJECT_DIR/memory/conversations.md" ]; then
-    CONVOS=$(tail -20 "$PROJECT_DIR/memory/conversations.md" 2>/dev/null || true)
+if [ -f "$CORTEX_HOME/memory/conversations.md" ]; then
+    CONVOS=$(tail -20 "$CORTEX_HOME/memory/conversations.md" 2>/dev/null || true)
     CONTEXT="$CONTEXT\n\n## Recent Conversations\n$CONVOS"
 fi
 
@@ -68,12 +66,9 @@ SESSION_LOG="$LOG_DIR/sessions.log"
 if [ -f "$SESSION_LOG" ]; then
     LAST_END=$(grep "SESSION_END" "$SESSION_LOG" 2>/dev/null | tail -1 | grep -o '^\[.*\]' | tr -d '[]')
     if [ -n "$LAST_END" ]; then
-        # Cross-platform date calculation
         if date -j &>/dev/null 2>&1; then
-            # macOS
             LAST_EPOCH=$(date -j -f "%Y-%m-%d %H:%M:%S" "$LAST_END" "+%s" 2>/dev/null || echo "0")
         else
-            # Linux
             LAST_EPOCH=$(date -d "$LAST_END" "+%s" 2>/dev/null || echo "0")
         fi
         NOW_EPOCH=$(date "+%s")
@@ -102,8 +97,12 @@ if [ -n "$CRON_ERRORS" ]; then
     CONTEXT="$CONTEXT\n\n## Cron Health (last 24h)$CRON_ERRORS"
 fi
 
+# Inject current project path so the assistant knows where it's working
+CONTEXT="$CONTEXT\n\n## Current Project\n- Working directory: ${CLAUDE_PROJECT_DIR:-.}"
+CONTEXT="$CONTEXT\n- Cortex home: $CORTEX_HOME"
+
 # Log session start
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] SESSION_START" >> "$LOG_DIR/sessions.log"
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] SESSION_START project=${CLAUDE_PROJECT_DIR:-.}" >> "$LOG_DIR/sessions.log"
 
 # Output as JSON with additionalContext
 if command -v jq &>/dev/null; then

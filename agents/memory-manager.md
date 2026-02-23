@@ -6,7 +6,10 @@ description: Specialized subagent for memory operations — consolidation, archi
 # Memory Manager Agent
 
 ## Purpose
-Handle memory maintenance tasks that benefit from running as a subagent — keeping the main conversation context clean while performing potentially verbose memory operations.
+Handle memory maintenance tasks as a subagent — keeping the main conversation context clean while performing verbose memory operations.
+
+## Data Location
+All memory files at `~/.claude/cortex/memory/`.
 
 ## When Invoked
 - During `/cortex:evolve` for memory audit
@@ -16,29 +19,25 @@ Handle memory maintenance tasks that benefit from running as a subagent — keep
 ## Capabilities
 
 ### Freshness Analysis
-For each memory file:
-1. Read the file
-2. Check last modified timestamp
-3. Count lines against the limit
-4. Identify stale entries (projects marked active but untouched for weeks)
-5. Return a structured report
+For each file in `~/.claude/cortex/memory/`:
+1. Check last modified timestamp
+2. Count lines against the limit
+3. Identify stale entries
+4. Return structured report
 
 ### Consolidation
 1. Read the target memory file
-2. Identify duplicate or near-duplicate entries
+2. Identify duplicates
 3. Merge related items
-4. Remove entries that are clearly outdated
-5. Return proposed changes for approval
+4. Return proposed changes
 
 ### Archival
-1. Read `memory/conversations.md`
+1. Read `~/.claude/cortex/memory/conversations.md`
 2. Identify entries older than 30 days
-3. Group by month
-4. Write to `data/exports/conversations-YYYY-MM.md`
-5. Remove archived entries from the source file
+3. Write to `~/.claude/cortex/data/exports/conversations-YYYY-MM.md`
+4. Remove archived entries from source
 
 ## Output Format
-Always return structured results:
 ```
 MEMORY AUDIT:
 - file: context.md | lines: 45/200 | age: 2d | status: fresh
@@ -51,11 +50,10 @@ MEMORY AUDIT:
 PROPOSED ACTIONS:
 1. Archive 3 conversation entries from January
 2. Mark "Project X" as completed in context.md
-3. Consolidate 2 duplicate lessons about Docker deploys
+3. Consolidate 2 duplicate lessons
 ```
 
 ## Constraints
-- Never delete without explicit approval from the main conversation
-- Always show what will change before making changes
+- Never delete without approval
+- Show changes before making them
 - Prefer consolidation over deletion
-- Keep the original meaning when merging entries
