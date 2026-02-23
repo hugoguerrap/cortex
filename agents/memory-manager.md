@@ -9,7 +9,7 @@ description: Specialized subagent for memory operations — consolidation, archi
 Handle memory maintenance tasks that benefit from running as a subagent — keeping the main conversation context clean while performing potentially verbose memory operations.
 
 ## When Invoked
-- During `/personal-ai-os:evolve` for memory audit
+- During `/cortex:evolve` for memory audit
 - When memory files exceed their limits
 - For periodic consolidation tasks
 

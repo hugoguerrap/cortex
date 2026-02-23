@@ -13,44 +13,50 @@ user-invocable: true
 ## Steps
 
 ### 1. Create Directory Structure
-Run the init script:
+Create the required directories in the user's project:
 ```bash
-bash "$CLAUDE_PROJECT_DIR/scripts/init_data_dirs.sh"
+mkdir -p memory identity data/logs data/reports data/exports scripts
 ```
 
 ### 2. Copy Memory Templates
-For each template file in `templates/memory/`, copy it to `memory/` **only if it doesn't already exist**:
+For each template, copy from the plugin to the user's project **only if it doesn't already exist**.
 
-```bash
-PLUGIN_DIR="<path to cortex plugin>"
-for template in context.md strategy.md lessons.md preferences.md conversations.md watchlist.md; do
-    if [ ! -f "memory/$template" ]; then
-        cp "$PLUGIN_DIR/templates/memory/$template" "memory/$template"
-    fi
-done
-```
+The plugin templates are at `${CLAUDE_PLUGIN_ROOT}/templates/`. Read each template file and write it to the user's project:
+
+Memory files to create in `memory/`:
+- `context.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/memory/context.md`
+- `strategy.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/memory/strategy.md`
+- `lessons.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/memory/lessons.md`
+- `preferences.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/memory/preferences.md`
+- `conversations.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/memory/conversations.md`
+- `watchlist.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/memory/watchlist.md`
 
 ### 3. Copy Identity Templates
-Same for identity files:
-```bash
-for template in SOUL.md USER.md; do
-    if [ ! -f "identity/$template" ]; then
-        cp "$PLUGIN_DIR/templates/identity/$template" "identity/$template"
-    fi
-done
-```
+Identity files to create in `identity/`:
+- `SOUL.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/identity/SOUL.md`
+- `USER.md` — from `${CLAUDE_PLUGIN_ROOT}/templates/identity/USER.md`
 
-### 4. Ask the User
+### 4. Copy Utility Scripts
+Copy reusable scripts from the plugin to the user's project:
+- `scripts/notify.sh` — from `${CLAUDE_PLUGIN_ROOT}/scripts/notify.sh`
+- `scripts/system_status.sh` — from `${CLAUDE_PLUGIN_ROOT}/scripts/system_status.sh`
+- `scripts/cron_runner.sh` — from `${CLAUDE_PLUGIN_ROOT}/scripts/cron_runner.sh`
+- `scripts/awareness_scan.py` — from `${CLAUDE_PLUGIN_ROOT}/scripts/awareness_scan.py`
+- `scripts/extract_transcripts.py` — from `${CLAUDE_PLUGIN_ROOT}/scripts/extract_transcripts.py`
+
+Make all scripts executable: `chmod +x scripts/*.sh scripts/*.py`
+
+### 5. Ask the User
 Prompt for basic personalization:
 - **Assistant name**: What should your AI assistant be called? (default: "Assistant")
 - **User name**: Your name
 - **Notification channel**: How should the AI notify you? Options: `telegram`, `discord`, `slack`, `desktop`, `none`
 
-### 5. Apply Personalization
+### 6. Apply Personalization
 Replace `{{ASSISTANT_NAME}}` in `identity/SOUL.md` with the chosen name.
 Replace `{{USER_NAME}}` in `identity/USER.md` with the user's name.
 
-### 6. Configure Notifications (if not `none`)
+### 7. Configure Notifications (if not `none`)
 Based on the chosen channel, tell the user which env vars to set:
 
 | Channel | Required Env Vars |
@@ -60,7 +66,7 @@ Based on the chosen channel, tell the user which env vars to set:
 | slack | `CORTEX_SLACK_WEBHOOK` |
 | desktop | _none_ (uses native notifications) |
 
-### 7. Create .gitignore entries
+### 8. Create .gitignore entries
 Append to the project's `.gitignore` if not already present:
 ```
 data/logs/
@@ -68,7 +74,7 @@ data/exports/
 *.pid
 ```
 
-### 8. Confirm
+### 9. Confirm
 Print a summary:
 ```
 Cortex initialized!
@@ -79,6 +85,7 @@ Created:
   data/logs/     — Session and cron logs
   data/reports/  — Generated reports
   data/exports/  — Archived conversations
+  scripts/       — Utility scripts (notify, system_status, cron_runner, awareness_scan, extract_transcripts)
 
 Next steps:
   1. Edit identity/SOUL.md to customize your assistant's personality
