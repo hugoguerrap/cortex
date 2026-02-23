@@ -28,10 +28,21 @@ if [ ! -d "$PROJECT_DIR/memory" ] || [ ! -f "$PROJECT_DIR/memory/context.md" ]; 
     exit 0
 fi
 
+# Read identity files (live in user's project, created by /cortex:setup)
+if [ -f "$PROJECT_DIR/identity/SOUL.md" ]; then
+    SOUL=$(cat "$PROJECT_DIR/identity/SOUL.md" 2>/dev/null || true)
+    CONTEXT="## Assistant Identity\n$SOUL"
+fi
+
+if [ -f "$PROJECT_DIR/identity/USER.md" ]; then
+    USER_PROFILE=$(cat "$PROJECT_DIR/identity/USER.md" 2>/dev/null || true)
+    CONTEXT="$CONTEXT\n\n## User Profile\n$USER_PROFILE"
+fi
+
 # Read current priorities
 if [ -f "$PROJECT_DIR/memory/context.md" ]; then
     CONTEXT_MD=$(cat "$PROJECT_DIR/memory/context.md" 2>/dev/null || true)
-    CONTEXT="## Current Context\n$CONTEXT_MD"
+    CONTEXT="$CONTEXT\n\n## Current Context\n$CONTEXT_MD"
 fi
 
 # Read strategy (goals, opportunities, contacts)
