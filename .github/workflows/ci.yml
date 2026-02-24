@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+      - name: Lint shell scripts
+        run: |
+          shellcheck hooks/session_start.sh
+          shellcheck hooks/session_end.sh
+          shellcheck scripts/notify.sh
+          shellcheck scripts/cron_runner.sh
+          shellcheck scripts/system_status.sh
+          shellcheck scripts/init_data_dirs.sh
+          shellcheck scripts/memory_commit.sh
+
+  ruff:
+    name: Ruff (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Lint Python scripts
+        run: ruff check scripts/ tests/
+      - name: Check formatting
+        run: ruff format --check scripts/ tests/
+
+  test-bash:
+    name: Bash Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install jq
+        run: sudo apt-get install -y jq
+      - name: Run session_start tests
+        run: bash tests/test_session_start.sh
+      - name: Run notify tests
+        run: bash tests/test_notify.sh
+
+  test-python:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run extract_transcripts tests
+        run: python3 -m pytest tests/test_extract_transcripts.py -v
+      - name: Run validate_memory_update tests
+        run: python3 -m pytest tests/test_validate_memory.py -v

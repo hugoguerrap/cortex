@@ -23,11 +23,40 @@ If `$NITRO_HOME/nitro-agent/agents.toml` exists and the service is running, tell
 
 ### 2. Check and Fix Dependencies
 
-#### Xcode CLI Tools
+First detect the platform:
+```bash
+OS="$(uname -s)"
+```
+
+#### Build Tools
+
+**macOS:**
 ```bash
 xcode-select -p >/dev/null 2>&1
 ```
 If missing, run `xcode-select --install` and tell the user to click "Install" in the popup that appears. Wait for them to confirm it's done before continuing.
+
+**Linux:**
+```bash
+command -v gcc >/dev/null 2>&1 && command -v make >/dev/null 2>&1
+```
+If missing, install build essentials:
+- Debian/Ubuntu: `sudo apt-get install -y build-essential pkg-config libssl-dev`
+- Fedora/RHEL: `sudo dnf install -y gcc make openssl-devel pkg-config`
+- Arch: `sudo pacman -S --noconfirm base-devel openssl pkg-config`
+
+Detect the distro automatically:
+```bash
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    case "$ID" in
+        ubuntu|debian|pop|mint) sudo apt-get install -y build-essential pkg-config libssl-dev ;;
+        fedora|rhel|centos|rocky|alma) sudo dnf install -y gcc make openssl-devel pkg-config ;;
+        arch|manjaro) sudo pacman -S --noconfirm base-devel openssl pkg-config ;;
+        *) echo "Please install gcc, make, pkg-config, and OpenSSL dev headers for your distro." ;;
+    esac
+fi
+```
 
 #### Rust Toolchain
 ```bash
@@ -47,7 +76,9 @@ Verify with `cargo --version`.
 ```bash
 command -v git >/dev/null 2>&1
 ```
-If missing (extremely rare on macOS), install via `xcode-select --install`.
+If missing:
+- macOS: `xcode-select --install`
+- Linux: `sudo apt-get install -y git` or `sudo dnf install -y git`
 
 ### 3. Create the Telegram Bot (Guided)
 
@@ -117,8 +148,10 @@ cargo build --release 2>&1
 ```
 
 If the build fails:
-- Missing Xcode tools → `xcode-select --install`
-- Missing OpenSSL → `brew install openssl` (if Homebrew available)
+- **macOS**: Missing Xcode tools → `xcode-select --install`
+- **macOS**: Missing OpenSSL → `brew install openssl` (if Homebrew available)
+- **Linux**: Missing OpenSSL dev → `sudo apt-get install -y libssl-dev` (Debian/Ubuntu) or `sudo dnf install -y openssl-devel` (Fedora/RHEL)
+- **Linux**: Missing pkg-config → `sudo apt-get install -y pkg-config` or `sudo dnf install -y pkg-config`
 - Other error → show the error and suggest checking Rust installation
 
 ### 7. Write Configuration
@@ -145,6 +178,9 @@ workspace_root = "<workspace from step 5>"
 
 ### 8. Install and Start as Daemon
 
+Detect the platform and use the appropriate service manager:
+
+**macOS (launchd):**
 ```bash
 cd "$NITRO_HOME/nitro-agent"
 bash install-service.sh
@@ -155,9 +191,45 @@ Wait 3 seconds, then verify:
 bash install-service.sh --status
 ```
 
-If it's not running, check logs and report the issue:
+**Linux (systemd):**
+
+If `install-service.sh` doesn't support Linux, create a systemd user service manually:
+
+```bash
+mkdir -p ~/.config/systemd/user
+
+cat > ~/.config/systemd/user/nitro-agent.service << EOF
+[Unit]
+Description=NitroAgent - Telegram to Claude Code bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=$NITRO_HOME/nitro-agent
+ExecStart=$NITRO_HOME/nitro-agent/target/release/nitro-agent
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=$NITRO_HOME/nitro-agent/.env
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable nitro-agent
+systemctl --user start nitro-agent
+```
+
+Wait 3 seconds, then verify:
+```bash
+systemctl --user status nitro-agent
+```
+
+**Both platforms** — if it's not running, check logs:
 ```bash
 tail -20 logs/daemon-stderr.log
+# Linux also: journalctl --user -u nitro-agent --no-pager -n 20
 ```
 
 ### 9. Send a Test Message
@@ -219,8 +291,11 @@ If something goes wrong at any step, don't just show the error — diagnose and 
 | Problem | Diagnosis | Fix |
 |---------|-----------|-----|
 | cargo not found after install | Shell not reloaded | `source "$HOME/.cargo/env"` |
-| Build fails with linker error | Missing Xcode tools | `xcode-select --install` |
+| Build fails with linker error (macOS) | Missing Xcode tools | `xcode-select --install` |
+| Build fails with linker error (Linux) | Missing build tools | `sudo apt-get install -y build-essential pkg-config libssl-dev` |
 | Bot doesn't respond | Wrong token or user ID | Verify token with `curl https://api.telegram.org/bot<TOKEN>/getMe` |
 | Bot responds to /start but not messages | User ID mismatch | Check `allowed_user_ids` in agents.toml matches the user's actual ID |
-| Service won't start | Port/binary issue | Check `tail -20 logs/daemon-stderr.log` |
+| Service won't start (macOS) | Port/binary issue | Check `tail -20 logs/daemon-stderr.log` |
+| Service won't start (Linux) | systemd issue | `journalctl --user -u nitro-agent --no-pager -n 30` |
 | "claude: command not found" in daemon | PATH issue | Verify Claude CLI path: `which claude`, then check install-service.sh resolved PATH |
+| systemd --user not available | Needs lingering | `sudo loginctl enable-linger $USER` |
